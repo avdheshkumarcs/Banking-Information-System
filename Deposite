@@ -1,0 +1,114 @@
+package banking.informagtion.system;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.sql.*;
+import java.util.Date;
+
+public class Deposit extends JFrame implements ActionListener {
+
+    JTextField texttype;
+    JButton deposit, back;
+    JLabel text;
+    String pin;
+
+    Deposit(String pin) {
+        this.pin = pin;
+
+        setLayout(null);
+
+        ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icon/atm.jpg.jpeg"));
+        Image i2 = i1.getImage().getScaledInstance(600,600, Image.SCALE_DEFAULT);
+        ImageIcon i3 = new ImageIcon(i2);
+        JLabel image = new JLabel(i3);
+        image.setBounds(0, 0, 600, 600);
+        image.setLayout(null);   
+        add(image);
+        
+        text = new JLabel("ENTER AMOUNT YOU WANT TO DEPOSIT");
+        text.setForeground(Color.WHITE);
+        text.setFont(new Font("System", Font.BOLD, 10));
+        text.setBounds(120, 220, 250, 20);
+        image.add(text);
+
+        texttype = new JTextField();
+        texttype.setFont(new Font("Raleway", Font.BOLD, 22));
+        texttype.setBounds(120, 250, 200, 20);
+        image.add(texttype);
+
+        deposit = new JButton("DEPOSIT");
+        deposit.setBounds(120, 280, 200, 20);
+        deposit.addActionListener(this);
+        image.add(deposit);
+
+        back = new JButton("BACK");
+        back.setBounds(120, 310, 200, 20);
+        back.addActionListener(this);
+        image.add(back);
+
+        setSize(600, 600);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        getContentPane().setBackground(Color.WHITE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+
+        if (ae.getSource() == deposit) {
+
+            String amountText = text.getText();
+
+            if (amountText.equals("")) {
+                JOptionPane.showMessageDialog(null, "Please enter the amount to deposit");
+                return;
+            }
+
+            if (!amountText.matches("\\d+")) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid numeric amount");
+                return;
+            }
+
+            int amount = Integer.parseInt(amountText);
+
+            if (amount <= 0) {
+                JOptionPane.showMessageDialog(null, "Amount must be greater than 0");
+                return;
+            }
+
+            try {
+                conn connection = new conn();
+
+                String query = "INSERT INTO bank (pin, date, type, amount) VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = connection.connection.prepareStatement(query);
+
+                ps.setString(1, pin);
+                ps.setString(2, new Date().toString());
+                ps.setString(3, "Deposit");
+                ps.setInt(4, amount);
+
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Rs. " + amount + " Deposited Successfully");
+
+                setVisible(false);
+                new Transactions(pin).setVisible(true);
+
+            } catch (Exception e) {
+                System.out.println(e);
+                JOptionPane.showMessageDialog(null, "Database Error");
+            }
+        }
+
+        else if (ae.getSource() == back) {
+            setVisible(false);
+            new Transactions(pin).setVisible(true);
+        }
+    }
+
+    public static void main(String[] args) {
+        new Deposit("");
+    }
+}
