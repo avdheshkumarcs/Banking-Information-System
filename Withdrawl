@@ -1,0 +1,112 @@
+package banking.informagtion.system;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+import java.util.Date;
+
+public class Withdrawl extends JFrame implements ActionListener {
+
+    JButton withdraw, back;
+    JTextField amountField;
+    String pin;
+
+    Withdrawl(String pin) {
+
+        this.pin = pin;
+
+        setSize(600, 600);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icon/atm.jpg.jpeg"));
+        Image i2 = i1.getImage().getScaledInstance(600, 600, Image.SCALE_DEFAULT);
+        ImageIcon i3 = new ImageIcon(i2);
+        JLabel image = new JLabel(i3);
+        image.setBounds(0, 0, 600, 600);
+        image.setLayout(null);
+        add(image);
+
+        JLabel label = new JLabel("Enter the amount you want to Withdraw");
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("System", Font.BOLD, 10));
+        label.setBounds(120, 200, 250, 20);
+        image.add(label);
+
+        amountField = new JTextField();
+        amountField.setFont(new Font("Raleway", Font.BOLD, 22));
+        amountField.setBounds(120, 240, 200, 20);
+        image.add(amountField);
+
+        withdraw = new JButton("Withdraw");
+        withdraw.setBounds(230, 300, 100,20);
+        withdraw.addActionListener(this);
+        image.add(withdraw);
+
+        back = new JButton("Back");
+        back.setBounds(230, 330, 100, 20);
+        back.addActionListener(this);
+        image.add(back);
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+
+        if (ae.getSource() == withdraw) {
+
+            String amountText = amountField.getText();
+
+            if (amountText.equals("")) {
+                JOptionPane.showMessageDialog(null, "Please enter the amount");
+                return;
+            }
+
+            if (!amountText.matches("\\d+")) {
+                JOptionPane.showMessageDialog(null, "Enter valid numeric amount");
+                return;
+            }
+
+            int amount = Integer.parseInt(amountText);
+
+            if (amount <= 0) {
+                JOptionPane.showMessageDialog(null, "Amount must be greater than 0");
+                return;
+            }
+
+            try {
+                conn connection = new conn();
+
+                String query = "INSERT INTO bank (pin, date, type, amount) VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = connection.connection.prepareStatement(query);
+
+                ps.setString(1, pin);
+                ps.setString(2, new Date().toString());
+                ps.setString(3, "Withdraw");
+                ps.setInt(4, amount);
+
+                ps.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Rs. " + amount + " Withdrawn Successfully");
+
+                setVisible(false);
+                new Transactions(pin).setVisible(true);
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Database Error");
+                System.out.println(e);
+            }
+        }
+
+        else if (ae.getSource() == back) {
+            setVisible(false);
+            new Transactions(pin).setVisible(true);
+        }
+    }
+
+    public static void main(String[] args) {
+        new Withdrawl("1234");
+    }
+}
