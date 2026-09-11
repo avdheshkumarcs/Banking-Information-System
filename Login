@@ -1,0 +1,128 @@
+package banking.informagtion.system;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class Login extends JFrame implements ActionListener {
+
+    JButton login, clear, signup;
+    JTextField cardTextField;
+    JPasswordField pinTextField;
+
+    Login(String pin) {
+
+        setTitle("Banking Information Management");
+        setSize(600, 550);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setBackground(Color.WHITE);
+        setLayout(null);
+
+        // Logo
+        ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icon/logo.jpg.jpeg"));
+        Image i2 = i1.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT);
+        ImageIcon i3 = new ImageIcon(i2);
+        JLabel label = new JLabel(i3);
+        label.setBounds(70, 10, 100, 100);
+        add(label);
+
+        JLabel text = new JLabel("Welcome to BIM");
+        text.setFont(new Font("Osward", Font.BOLD, 30));
+        text.setBounds(190, 50, 300, 30);
+        add(text);
+
+        JLabel cardno = new JLabel("Card No:");
+        cardno.setFont(new Font("Osward", Font.BOLD, 20));
+        cardno.setBounds(120, 200, 150, 30);
+        add(cardno);
+
+        cardTextField = new JTextField();
+        cardTextField.setBounds(280, 205, 170, 25);
+        add(cardTextField);
+
+        JLabel pinl = new JLabel("PIN:");
+        pinl.setFont(new Font("Osward", Font.BOLD, 20));
+        pinl.setBounds(120, 260, 150, 30);
+        add(pinl);
+
+        pinTextField = new JPasswordField();
+        pinTextField.setBounds(280, 266, 170, 25);
+        add(pinTextField);
+
+        login = new JButton("SIGN IN");
+        login.setBounds(230, 330, 100, 25);
+        login.setBackground(Color.BLACK);
+        login.setForeground(Color.WHITE);
+        login.addActionListener(this);
+        add(login);
+
+        clear = new JButton("CLEAR");
+        clear.setBounds(350, 330, 100, 25);
+        clear.setBackground(Color.BLACK);
+        clear.setForeground(Color.WHITE);
+        clear.addActionListener(this);
+        add(clear);
+
+        signup = new JButton("SIGN UP");
+        signup.setBounds(230, 370, 225, 25);
+        signup.setBackground(Color.BLACK);
+        signup.setForeground(Color.WHITE);
+        signup.addActionListener(this);
+        add(signup);
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+
+        if (ae.getSource() == clear) {
+            cardTextField.setText("");
+            pinTextField.setText("");
+        }
+
+        else if (ae.getSource() == login) {
+
+            String cardno = cardTextField.getText();
+            String pinl = new String(pinTextField.getPassword());
+
+            // Validation
+            if (cardno.equals("") || pinl.equals("")) {
+                JOptionPane.showMessageDialog(null, "Please enter Card Number and PIN");
+                return;
+            }
+
+            try {
+                conn connection = new conn();
+
+                String query = "SELECT * FROM login WHERE cardno = ? AND pin = ?";
+
+                PreparedStatement ps = connection.connection.prepareStatement(query);
+                ps.setString(1, cardno);
+                ps.setString(2, pinl);
+
+                ResultSet rs = ps.executeQuery();
+
+                if (rs.next()) {
+                    setVisible(false);
+                    new Transactions(pinl).setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Incorrect Card Number or PIN");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        else if (ae.getSource() == signup) {
+            setVisible(false);
+            new Signup().setVisible(true);
+        }
+    }
+
+    public static void main(String[] args) {
+        new Login("");
+    }
+}
