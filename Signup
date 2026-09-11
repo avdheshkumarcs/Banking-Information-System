@@ -1,0 +1,183 @@
+package banking.informagtion.system;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.sql.*;
+import com.toedter.calendar.JDateChooser;
+
+public class Signup extends JFrame implements ActionListener {
+
+    JButton next;
+    JRadioButton male, female, married, unmarried;
+    JTextField nameTextField, fnameTextField, emailTextField,
+            addressTextField, cityTextField, stateTextField, pinTextField;
+    JDateChooser dateChooser;
+
+    long random;
+
+    Signup() {
+
+        Random ran = new Random();
+        random = Math.abs(ran.nextLong() % 9000L) + 1000L;
+
+        setSize(600, 600);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setBackground(Color.WHITE);
+        setLayout(null);
+
+        JLabel formnoLabel = new JLabel("Application Form No. " + random);
+        formnoLabel.setFont(new Font("Raleway", Font.BOLD, 30));
+        formnoLabel.setBounds(120, 20, 450, 40);
+        add(formnoLabel);
+
+        JLabel personalDetails = new JLabel("Page 1: Personal Details");
+        personalDetails.setFont(new Font("Raleway", Font.BOLD, 20));
+        personalDetails.setBounds(170, 70, 450, 20);
+        add(personalDetails);
+
+        addLabel("Name:", 120, 110);
+        nameTextField = addTextField(300, 110);
+
+        addLabel("Father Name:", 120, 150);
+        fnameTextField = addTextField(300, 150);
+
+        addLabel("Date of Birth:", 120, 190);
+        dateChooser = new JDateChooser();
+        dateChooser.setBounds(300, 190, 180, 25);
+        add(dateChooser);
+
+        addLabel("Gender:", 120, 230);
+        male = addRadioButton("Male", 300, 230);
+        female = addRadioButton("Female", 390, 230);
+        ButtonGroup genderGroup = new ButtonGroup();
+        genderGroup.add(male);
+        genderGroup.add(female);
+
+        addLabel("Email:", 120, 270);
+        emailTextField = addTextField(300, 270);
+
+        addLabel("Marital Status:", 120, 310);
+        married = addRadioButton("Married", 300, 310);
+        unmarried = addRadioButton("Unmarried", 400, 310);
+        ButtonGroup maritalGroup = new ButtonGroup();
+        maritalGroup.add(married);
+        maritalGroup.add(unmarried);
+
+        addLabel("Address:", 120, 350);
+        addressTextField = addTextField(300, 350);
+
+        addLabel("City:", 120, 390);
+        cityTextField = addTextField(300, 390);
+
+        addLabel("State:", 120, 430);
+        stateTextField = addTextField(300, 430);
+
+        addLabel("PIN Code:", 120, 470);
+        pinTextField = addTextField(300, 470);
+
+        next = new JButton("NEXT");
+        next.setBounds(240, 510, 100, 30);
+        next.setBackground(Color.BLACK);
+        next.setForeground(Color.WHITE);
+        next.addActionListener(this);
+        add(next);
+
+        setVisible(true);
+    }
+
+    private void addLabel(String text, int x, int y) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Raleway", Font.BOLD, 18));
+        label.setBounds(x, y, 200, 25);
+        add(label);
+    }
+
+    private JTextField addTextField(int x, int y) {
+        JTextField field = new JTextField();
+        field.setBounds(x, y, 180, 25);
+        add(field);
+        return field;
+    }
+
+    private JRadioButton addRadioButton(String text, int x, int y) {
+        JRadioButton rb = new JRadioButton(text);
+        rb.setBounds(x, y, 100, 25);
+        rb.setBackground(Color.WHITE);
+        add(rb);
+        return rb;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+
+        String formno = "" + random;
+        String name = nameTextField.getText();
+        String fname = fnameTextField.getText();
+        String dob = "";
+
+        if (dateChooser.getDate() != null) {
+            dob = ((JTextField) dateChooser.getDateEditor().getUiComponent()).getText();
+        }
+
+        String gender = null;
+        if (male.isSelected()) gender = "Male";
+        else if (female.isSelected()) gender = "Female";
+
+        String email = emailTextField.getText();
+
+        String marital = null;
+        if (married.isSelected()) marital = "Married";
+        else if (unmarried.isSelected()) marital = "Unmarried";
+
+        String address = addressTextField.getText();
+        String city = cityTextField.getText();
+        String state = stateTextField.getText();
+        String pincode = pinTextField.getText();
+
+        if (name.equals("")) {
+            JOptionPane.showMessageDialog(this, "Name is Required");
+            return;
+        }
+
+        if (dob.equals("")) {
+            JOptionPane.showMessageDialog(this, "Date of Birth is Required");
+            return;
+        }
+
+        if (gender == null) {
+            JOptionPane.showMessageDialog(this, "Please Select Gender");
+            return;
+        }
+
+        if (marital == null) {
+            JOptionPane.showMessageDialog(this, "Please Select Marital Status");
+            return;
+        }
+
+        try {
+            conn connection = new conn();
+
+            String query = "INSERT INTO signup VALUES('" + formno + "','" + name + "','" +
+                    fname + "','" + dob + "','" + gender + "','" + email + "','" +
+                    marital + "','" + address + "','" + city + "','" +
+                    state + "','" + pincode + "')";
+
+            connection.statement.executeUpdate(query);
+
+            JOptionPane.showMessageDialog(this, "Data Inserted Successfully!");
+
+            setVisible(false);
+            new SignupTwo(formno).setVisible(true);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Signup::new);
+    }
+}
