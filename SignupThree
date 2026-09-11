@@ -1,0 +1,183 @@
+package banking.informagtion.system;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;
+
+public class SignupThree extends JFrame implements ActionListener {
+
+    JCheckBox c1, c2, c3, c4, c5, c6, c7;
+    JButton submit, cancel;
+    JRadioButton saving, fixedDeposit, currentAccount, recurring;
+
+    String pin;
+    String formno;
+
+    SignupThree(String pin) {
+        this.pin = pin;
+        this.formno = formno;
+        
+
+        setLayout(null);
+        setSize(600, 550);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        getContentPane().setBackground(Color.WHITE);
+
+        JLabel account = new JLabel("Page 3: Account Details");
+        account.setFont(new Font("Raleway", Font.BOLD, 20));
+        account.setBounds(150, 50, 300, 30);
+        add(account);
+
+        JLabel accounttype = new JLabel("Account Type");
+        accounttype.setFont(new Font("Raleway", Font.BOLD, 20));
+        accounttype.setBounds(90, 100, 200, 20);
+        add(accounttype);
+
+        saving = new JRadioButton("Saving Account");
+        saving.setBounds(90, 130, 200, 20);
+        add(saving);
+
+        fixedDeposit = new JRadioButton("Fixed Deposit Account");
+        fixedDeposit.setBounds(300, 130, 200, 20);
+        add(fixedDeposit);
+
+        currentAccount = new JRadioButton("Current Account");
+        currentAccount.setBounds(90, 160, 200, 20);
+        add(currentAccount);
+
+        recurring = new JRadioButton("Recurring Deposit Account");
+        recurring.setBounds(300, 160, 220, 20);
+        add(recurring);
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(saving);
+        group.add(fixedDeposit);
+        group.add(currentAccount);
+        group.add(recurring);
+
+        JLabel services = new JLabel("Services Required");
+        services.setFont(new Font("Raleway", Font.BOLD, 18));
+        services.setBounds(90, 200, 200, 20);
+        add(services);
+
+        c1 = new JCheckBox("ATM Card");
+        c1.setBounds(90, 240, 150, 20);
+        add(c1);
+
+        c2 = new JCheckBox("Internet Banking");
+        c2.setBounds(250, 240, 150, 20);
+        add(c2);
+
+        c3 = new JCheckBox("Mobile Banking");
+        c3.setBounds(90, 270, 150, 20);
+        add(c3);
+
+        c4 = new JCheckBox("Email & SMS Alerts");
+        c4.setBounds(250, 270, 180, 20);
+        add(c4);
+
+        c5 = new JCheckBox("Cheque Book");
+        c5.setBounds(90, 300, 150, 20);
+        add(c5);
+
+        c6 = new JCheckBox("E-Statement");
+        c6.setBounds(250, 300, 150, 20);
+        add(c6);
+
+        c7 = new JCheckBox("I hereby declare that details are correct");
+        c7.setBounds(90, 340, 400, 20);
+        add(c7);
+
+        submit = new JButton("Submit");
+        submit.setBounds(150, 400, 100, 30);
+        submit.addActionListener(this);
+        add(submit);
+
+        cancel = new JButton("Cancel");
+        cancel.setBounds(300, 400, 100, 30);
+        cancel.addActionListener(this);
+        add(cancel);
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+
+        if (ae.getSource() == submit) {
+
+            String accountType = null;
+
+            if (saving.isSelected()) {
+                accountType = "Saving Account";
+            } else if (fixedDeposit.isSelected()) {
+                accountType = "Fixed Deposit Account";
+            } else if (currentAccount.isSelected()) {
+                accountType = "Current Account";
+            } else if (recurring.isSelected()) {
+                accountType = "Recurring Deposit Account";
+            }
+
+            if (accountType == null) {
+                JOptionPane.showMessageDialog(null, "Please select Account Type");
+                return;
+            }
+
+            if (!c7.isSelected()) {
+                JOptionPane.showMessageDialog(null, "Please accept declaration");
+                return;
+            }
+
+            long first8 = 50409360L;
+            long last8 = (long)(Math.random() * 90000000L) + 10000000L;
+            String cardno = first8 + "" + last8;
+
+         
+            Random random = new Random();
+            String pin = String.format("%04d", random.nextInt(10000));
+
+            String facility = "";
+            if (c1.isSelected()) facility += "ATM Card, ";
+            if (c2.isSelected()) facility += "Internet Banking, ";
+            if (c3.isSelected()) facility += "Mobile Banking, ";
+            if (c4.isSelected()) facility += "Email Alerts, ";
+            if (c5.isSelected()) facility += "Cheque Book, ";
+            if (c6.isSelected()) facility += "E-Statement";
+
+            if (facility.endsWith(", ")) {
+                facility = facility.substring(0, facility.length() - 2);
+            }
+
+            try {
+                conn connection = new conn();
+
+                String query = "INSERT INTO signupthree VALUES('" + formno + "','" +
+                        accountType + "','" + cardno + "','" + pin + "','" + facility + "')";
+
+                connection.statement.executeUpdate(query);
+
+                JOptionPane.showMessageDialog(null,
+                        "Account Created Successfully!\nCard No: " + cardno +
+                        "\nPIN: " + pin);
+
+                setVisible(false);
+                new Deposit(pin).setVisible(false);
+
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+
+        else if (ae.getSource() == cancel) {
+            System.exit(0);
+            setVisible(false);
+            new Login(pin).setVisible(true);
+        }
+    }
+
+    public static void main(String[] args) {
+        new SignupThree("1234");
+    }
+}
