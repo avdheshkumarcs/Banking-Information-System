@@ -1,0 +1,90 @@
+package banking.informagtion.system;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class Transactions extends JFrame implements ActionListener {
+
+    JButton deposit, cashWithdraw,fastcash,ministatement, pinchange,balance,exit;
+     String pin;
+    Transactions( String pin) {
+        this.pin = pin;
+
+        setLayout(null);
+        setSize(600, 600);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icon/atm.jpg.jpeg"));
+        Image i2 = i1.getImage().getScaledInstance(600, 600, Image.SCALE_DEFAULT);
+        ImageIcon i3 = new ImageIcon(i2);
+        JLabel image = new JLabel(i3);
+        image.setBounds(0, 0, 600, 600);
+        image.setLayout(null);   
+        add(image);
+
+        JLabel select = new JLabel("Please Select Your Transaction");
+        select.setFont(new Font("Raleway", Font.BOLD, 10));
+        select.setBounds(150, 200, 300, 20);
+        select.setForeground(Color.WHITE);
+        image.add(select);
+
+        deposit = new JButton("Deposit");
+        deposit.setBounds(105, 280, 110, 18);
+        deposit.addActionListener(this);
+        image.add(deposit);
+
+        cashWithdraw = new JButton("Cash Withdrawal");
+        cashWithdraw.setBounds(230, 280, 110, 18);
+        cashWithdraw.addActionListener(this);
+        image.add(cashWithdraw);
+        
+        fastcash = new JButton("Fast Cash");
+        fastcash.setBounds(105,300,110,18);
+        fastcash.addActionListener(this);
+        image.add(fastcash);
+        
+        ministatement = new JButton("Mini Statement");
+        ministatement.setBounds(230,300,110,18);
+        ministatement.addActionListener(this);
+        image.add(ministatement);
+        
+        pinchange = new JButton("Pin Change");
+        pinchange.setBounds(105,320,110,18);
+        pinchange.addActionListener(this);
+        image.add(pinchange);
+        
+        balance = new JButton("Balance Enquery");
+        balance.setBounds(230,320,110,18);
+        balance.addActionListener(this);
+        image.add(balance);
+        
+        exit = new JButton("Exit");
+        exit.setBounds(230,340,110,20);
+        exit.addActionListener(this);
+        image.add(exit);
+        
+
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+        if(ae.getSource() == exit){
+            System.exit(0);
+        }
+        setVisible(false);
+        new Deposit(pin).setVisible(true);
+        
+        setVisible(false);
+        new Login(pin).setVisible(true);
+        
+        setVisible(false);
+        new Withdrawl(pin).setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new Transactions("");
+    }
+}
